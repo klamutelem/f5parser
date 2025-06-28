@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>LB parse</title>
+{% endblock %}
+
+{% block body %}
+<form onsubmit="submitFormAsString(event)">
+    <h4>Enter string: </h4>
+    <label>string: </label>
+    <textarea id="string" name="LBconfig" oninput="autoResize(this)" cols="70" style="overflow:hidden;"></textarea><br>
+    <input type="submit" value="submit">
+</form>
+<div id="result"></div>
+
+
+
+{% endblock %}

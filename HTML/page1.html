@@ -1,0 +1,29 @@
+<!--
+In this page1 file we are extending the base.html file which contains our default HTML code
+We can specify specific code within the head or within the body of the base.html using the block/endblock within curly brackets and %
+In this case we are specifying a unique title within the head and specific form that will accept name and surname and passses them to our JS code
+-->
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Page1</title>
+{% endblock %}
+
+{% block body %}
+<form onsubmit="submitForm(event)">
+    <!--
+    onsubmit is a form attribute that calls for a specific Javascript function specified in the "" the (event) is mandatory as it represents
+    the event itself. In this case form submission event
+    -->
+    <h4>What is your full name?</h4>
+    <label>name: </label>
+    <input type="text" placeholder="name" id="name"><br>
+    <label>surname: </label>
+    <input type="text" placeholder="surname" id="surname"><br>
+    <input type="submit" value="submit">
+</form>
+<div id="result"></div>
+
+
+
+{% endblock %}

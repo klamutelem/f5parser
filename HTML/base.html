@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <script src="{{ url_for('static', filename='JS/script.js') }}"></script>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <h2>Python DOJO</h2>
+        <a href="/">index</a>
+        <a href="/page1">page1</a>
+        <a href="/LBparse">LB parse</a>
+        <hr>
+    </header>
+
+    {% block body %}{% endblock %}
+
+    
+
+    <footer>
+    <hr>
+    Auhor: Don' ask <br>
+    </form>
+</body>
+</html>
