@@ -5,13 +5,22 @@
 {% endblock %}
 
 {% block body %}
-<form onsubmit="submitFormAsString(event)">
-    <h4>Enter string: </h4>
-    <label>string: </label>
-    <textarea id="string" name="LBconfig" oninput="autoResize(this)" cols="70" style="overflow:hidden;"></textarea><br>
-    <input type="submit" value="submit">
-</form>
-<div id="result"></div>
+<div class="split">
+    <div id="F5parser" style="flex: 1;text-align: center;">
+        <form onsubmit="submitFormAsString(event)">
+            <h4>Enter string: </h4>
+            <textarea id="string" name="LBconfig" oninput="autoResize(this)" cols="70" style="width: 80%; max-height: 500px; overflow:auto; resize: vertical"></textarea><br>
+            <input type="submit" value="submit">
+        </form>
+    </div>
+    <div  style="flex: 1;text-align: center;">
+        <form onsubmit="submitFormAsJSON(event)">
+            <h4>Result</h4>
+            <textarea id="result" oninput="autoResize(this)" cols="70" style="width: 80%; max-height: 500px; overflow:auto; resize: vertical"></textarea><br>
+            <input type="submit" value="Remove unused profiles">
+        </form>        
+    </div>
+</div>
 
 
 

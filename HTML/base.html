@@ -4,25 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="{{ url_for('static', filename='JS/script.js') }}"></script>
     {% block head %}{% endblock %}
 </head>
 <body>
-    <header>
-        <h2>Python DOJO</h2>
-        <a href="/">index</a>
-        <a href="/page1">page1</a>
-        <a href="/LBparse">LB parse</a>
-        <hr>
-    </header>
-
-    {% block body %}{% endblock %}
-
-    
-
-    <footer>
-    <hr>
-    Auhor: Don' ask <br>
-    </form>
+    <div class="webpage">
+        <div class="header">
+            <header>
+                <h2>F5 parser</h2>
+            </header>
+        </div>
+        <div class="split">
+            <div class="sidebar"> 
+                <div class="sidebar-item" onmouseover="highlightdiv(this)">
+                    <a href="/">index</a>
+                </div>
+                <div class="sidebar-item">
+                    <a href="/LBparse">LB parse</a>
+                </div>
+            </div>
+                <div class="content">
+                {% block body %}{% endblock %}
+            </div>
+        </div>
+    </div>
 </body>
 </html>

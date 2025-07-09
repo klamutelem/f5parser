@@ -1,6 +1,20 @@
 /*
 This is JS file where we specify all the front end action
 */
+/*
+----------------------------------------------
+Below we have functions related to general layout
+----------------------------------------------
+*/
+function highlightdiv(div){
+    div.style.backgroundcolor = "darkblue";
+}
+
+/*
+----------------------------------------------
+Below we have functions related to F5 parser
+----------------------------------------------
+*/
 function autoResize(textarea) {
     textarea.style.height = 'auto'; // Reset height
     textarea.style.height = textarea.scrollHeight + 'px'; // Set height to scrollHeight
@@ -44,7 +58,8 @@ function submitForm(event){
 function submitFormAsString(event){
     event.preventDefault();
     const string = document.getElementById('string').value;
-    const jsonDataDiv = document.getElementById('result');
+    const result = document.getElementById('result');
+    
 
     fetch('LBparse',{
         method: 'POST',
@@ -61,7 +76,14 @@ function submitFormAsString(event){
     })
     .then(data => {
         // Step 3: Display the data in HTML
-        jsonDataDiv.innerHTML = JSON.stringify(data, null, 2);  // Display as formatted JSON
+        result.innerHTML = JSON.stringify(data, null, 2);  // Display as formatted JSON
+        autoResize(result)
     })
 
+    function submitFormAsJSON(event){
+        event.preventDefault();
+        const JSONdata = document.getElementById('result').value;
+        console.log("YOu are here")
+        alert("You have clicked")
+    }
 }

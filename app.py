@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, jsonify
+
 import re
 import json
+
 
 
 app = Flask(__name__, template_folder='HTML')
@@ -76,67 +78,151 @@ def page1():
 def LBparse():
     if request.method == 'POST':
         config_string = request.data.decode('utf-8') 
-        config_string_lines =config_string.splitlines()
+        config_string_lines_raw =config_string.splitlines()
+        config_string_lines = []
+        for line_raw in config_string_lines_raw:
+            #We need to go through all the lines in the raw list and remove all the empty lines
+            if line_raw:
+                config_string_lines.append(line_raw)
         line_count = 0
-        config_dictionary = {}
+        #We declare all the dictionaries we are using the the final config json file
+        monitor_dictionary = {}
+        persistance_dictionary = {}
+        VIP_dictionary = {}
+        irules_dictionary = {}
+        pools_dictionary = {}
+        #We add them all to this config dictionary 
+        config_dictionary = {"VIP config":VIP_dictionary,
+                             "Pool config":pools_dictionary,
+                             "Monitor config":monitor_dictionary,
+                             "Persistence config":persistance_dictionary,
+                             "irules":irules_dictionary}
         for line in config_string_lines:
             line = line.strip()
-            #print(line)
-            section_match = re.match(r'^(ltm|net|sys)\s+(\w+)\s+([a-zA-Z0-9\.\-\/\_]+)\s*{', line)
+            section_match = re.match(r'^(ltm)\s+(\w+)\s+(\w+\s+)?([a-zA-Z0-9\.\-\/\_]+)\s*{', line)
             if(section_match):
-                #print("We have a match")
-                section_dictionary = {}
-                section_lines = get_section(line_count, config_string_lines)
-                section_line_count = 0
-                VIP_name = ""
-                for section_line in section_lines:
-                    #we need to get the first word of each line and run in through switch loop
-                    section_line.strip()
-                    section_line_array = section_line.split()
-                    
-                    #print(section_line_first_word)
-                    if(section_line_array[0] == "ltm"):
-                        Position_of_last_slash = section_line.rfind("/")
-                        Position_of_the_bracket = line.find("{")
-                        VIP_name =section_line[(Position_of_last_slash+1):(Position_of_the_bracket-1)]
-                    
-                    elif(section_line_array[0] == "destination"):
-                        #We get position of some characters in the line and we used them to extract a portion of the string that contains the data we want
-                        Position_of_last_slash = section_line.rfind("/")
-                        Position_of_percantage_symbol = section_line.find("%")
-                        Position_of_colon_symbol = section_line.find(":")
-                        Position_of_string_end = len(section_line)
-
-
-                        VIP_IP = section_line[(Position_of_last_slash+1):Position_of_percantage_symbol]
-                        section_dictionary.update({"VIP IP":VIP_IP})
-
-
-                        Port_number = section_line[(Position_of_colon_symbol+1):Position_of_string_end]
-                        section_dictionary.update({"Port":Port_number})
-                    elif(section_line_array[0] == "ip-protocol"):
-                        #message = f"IP protocol is on line number {section_line_count} and the line is : {section_line}"
-                        #print(message)
-                        section_dictionary.update({section_line_array[0]:section_line_array[1]})
-                        #print(section_dictionary)
-                    elif(section_line_array[0] == "persist"):
-                        persistance_section = get_section((section_line_count),section_lines)
-                        persistance_profile_list=get_section_list(persistance_section)
-                        section_dictionary.update({"Persistance":persistance_profile_list})
-                    elif(section_line_array[0] == "profiles"):
-                        profiles_section = get_section((section_line_count),section_lines)
-                        profile_list=get_section_list(profiles_section)
-                        section_dictionary.update({"Profiles":profile_list})
-                    elif(section_line_array[0] == "rules"):
-                        irules_section = get_section((section_line_count),section_lines)
-                        irule_list=get_section_list(irules_section)
-                        section_dictionary.update({"irules":irule_list})
+                section_name = (section_match.group(2))
+                #We check what the word after LTM is and from that determine what kind of section we are parsing
+                if(section_name == "virtual"):
+                    #print("We have a match")
+                    section_dictionary = {}
+                    section_lines = get_section(line_count, config_string_lines)
+                    section_line_count = 0
+                    VIP_name = ""
+                    for section_line in section_lines:
+                        #we need to get the first word of each line and run in through switch loop
+                        section_line.strip()
+                        section_line_array = section_line.split()
                         
+                        #print(section_line_first_word)
+                        if(section_line_array[0] == "ltm"):
+                            Position_of_last_slash = section_line.rfind("/")
+                            Position_of_the_bracket = line.find("{")
+                            VIP_name =section_line[(Position_of_last_slash+1):(Position_of_the_bracket-1)]
+                        
+                        elif(section_line_array[0] == "destination"):
+                            #We get position of some characters in the line and we used them to extract a portion of the string that contains the data we want
+                            Position_of_last_slash = section_line.rfind("/")
+                            Position_of_percantage_symbol = section_line.find("%")
+                            Position_of_colon_symbol = section_line.find(":")
+                            Position_of_string_end = len(section_line)
 
-                    section_line_count += 1
-                    #print(section_dictionary)
-                config_dictionary.update({VIP_name:section_dictionary})
 
+                            VIP_IP = section_line[(Position_of_last_slash+1):Position_of_percantage_symbol]
+                            section_dictionary.update({"VIP IP":VIP_IP})
+
+
+                            Port_number = section_line[(Position_of_colon_symbol+1):Position_of_string_end]
+                            section_dictionary.update({"Port":Port_number})
+                        elif(section_line_array[0] == "ip-protocol"):
+                            #message = f"IP protocol is on line number {section_line_count} and the line is : {section_line}"
+                            #print(message)
+                            section_dictionary.update({section_line_array[0]:section_line_array[1]})
+                            #print(section_dictionary)
+                        elif(section_line_array[0] == "persist"):
+                            persistance_section = get_section((section_line_count),section_lines)
+                            persistance_profile_list=get_section_list(persistance_section)
+                            section_dictionary.update({"Persistance":persistance_profile_list})
+                        elif(section_line_array[0] == "profiles"):
+                            profiles_section = get_section((section_line_count),section_lines)
+                            profile_list=get_section_list(profiles_section)
+                            section_dictionary.update({"Profiles":profile_list})
+                        elif(section_line_array[0] == "rules"):
+                            irules_section = get_section((section_line_count),section_lines)
+                            irule_list=get_section_list(irules_section)
+                            section_dictionary.update({"irules":irule_list})
+                            
+
+                        section_line_count += 1
+                        #print(section_dictionary)
+                        VIP_dictionary.update({VIP_name:section_dictionary})
+
+                elif(section_name == "monitor"):
+                    #print("We have found a monitor")
+                    section_dictionary = {}
+                    section_lines = get_section(line_count, config_string_lines)
+                    section_line_count = 0
+                    monitor_name = ""
+                    for section_line in section_lines:
+                        #we need to get the first word of each line and run in through switch loop
+                        section_line.strip()
+                        section_line_array = section_line.split()
+                        #print(section_line_array)
+                        #print(section_line_first_word)
+                        if(section_line_array[0] == "ltm"):
+                            Position_of_last_slash = section_line.rfind("/")
+                            Position_of_the_bracket = line.find("{")
+                            monitor_name =section_line[(Position_of_last_slash+1):(Position_of_the_bracket-1)]
+                        elif(len(section_line_array) > 2):
+                            section_line_array_with_delimiter = section_line.split("\"")
+                            first_string = section_line_array[0]
+                            second_string = section_line_array_with_delimiter[1]
+                            section_dictionary.update({first_string:second_string})
+                        elif(len(section_line_array) == 2):
+                            section_dictionary.update({(section_line_array[0]):(section_line_array[1])})  
+
+                        monitor_dictionary.update({monitor_name:section_dictionary})
+                elif(section_name == "persistence"):
+                    section_dictionary = {}
+                    section_lines = get_section(line_count, config_string_lines)
+                    section_line_count = 0
+                    persistence_name = ""
+                    for section_line in section_lines:
+                        #we need to get the first word of each line and run in through switch loop
+                        section_line.strip()
+                        section_line_array = section_line.split()
+                        #print(section_line_array)
+                        #print(section_line_first_word)
+                        if(section_line_array[0] == "ltm"):
+                            Position_of_last_slash = section_line.rfind("/")
+                            Position_of_the_bracket = line.find("{")
+                            persistence_name =section_line[(Position_of_last_slash+1):(Position_of_the_bracket-1)]
+                        elif(len(section_line_array) == 2):
+                            section_dictionary.update({(section_line_array[0]):(section_line_array[1])}) 
+                        persistance_dictionary.update({persistence_name:section_dictionary})
+                elif(section_name == "rule"):
+                    section_dictionary = {}
+                    section_lines = get_section(line_count, config_string_lines)
+                    section_line_count = 0
+                    rule_name = ""
+                    
+                    for section_line in section_lines:
+                        #we need to get the first word of each line and run in through switch loop
+                        section_line.strip()
+                        section_line_array = section_line.split()
+                        irule_string = ""
+                        #print(section_line_array)
+                        #print(section_line_first_word)
+                        if(section_line_array[0] == "ltm"):
+                            Position_of_last_slash = section_line.rfind("/")
+                            Position_of_the_bracket = line.find("{")
+                            rule_name =section_line[(Position_of_last_slash+1):(Position_of_the_bracket-1)]
+                            
+                        else:
+                            irule_string = '\n'.join(section_lines[1:])
+                            
+                        irules_dictionary.update({rule_name:irule_string})
+        
             line_count += 1
 
         #print(config_dictionary)
